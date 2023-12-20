@@ -1,0 +1,5 @@
+/build
+/lake-packages/*
+/private
+TODO.md
+.vscode
