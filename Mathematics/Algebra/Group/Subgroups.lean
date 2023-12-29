@@ -1,5 +1,5 @@
-import Mathematics.Algebra.Groups
-import Mathematics.Structures.Sets
+import Mathematics.Algebra.Group
+import Mathematics.Structures.Set
 
 class Subgroup (T: Type) [Group T] (H: Set T) :=
 closure: ∀ a b: T, a ∈ H ∧ b ∈ H → (a * b) ∈ H
@@ -17,7 +17,7 @@ def Subgroup.idenity : Subgroup T (Set.singular 1) where
 closure := by
   intro a b h1
   rw [theorems.Set.singular.includes, theorems.Set.singular.includes] at h1
-  rw [←h1.left, ←h1.right, groups.one.mul]
+  rw [←h1.left, ←h1.right, groups.one.multiply]
   exact theorems.Set.singular.includes.self 1
 
 namespace coset
@@ -37,6 +37,6 @@ variable (T: Type) [Group T] (H: Set T) [Subgroup T H] [coset.Subgroup.IsNormal 
 open image def Group.Quotient : Set (Set T)
   := Set.image (fun a => coset.Group.LeftCoset T a)
 
--- def Group.Quotient.Mul: Group.Quotient T H → Group.Quotient T H → Group.Quotient T H := fun x y => x. * y ∈ H
+-- def Group.Quotient.multiply: Group.Quotient T H → Group.Quotient T H → Group.Quotient T H := fun x y => x. * y ∈ H
 
 end quotient

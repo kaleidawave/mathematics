@@ -1,6 +1,6 @@
-import Mathematics.Algebra.Groups
-import Mathematics.Structures.Naturals
-import Mathematics.Proofs.Logic
+import Mathematics.Logic
+import Mathematics.Algebra.Group
+import Mathematics.Structures.Numbers.Natural
 
 -- Having some problems with the below so skipping for now
 

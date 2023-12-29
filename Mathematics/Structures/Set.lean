@@ -1,4 +1,4 @@
-import Mathematics.Proofs.Logic
+import Mathematics.Logic
 
 def Set (A: Type): Type := A → Prop
 

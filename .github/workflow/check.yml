@@ -1,0 +1,20 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-lean@v1
+    - run: lake build
+
+# steps:
+# - name:
+#   run: |
+#     lean .\Mathematics.lean
+#     # lean .\Mathematics\**\*.lean

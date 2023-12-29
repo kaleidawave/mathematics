@@ -15,7 +15,7 @@ def Or.map { A B C D: Prop } (h₁: A → C) (h₂ : B → D) : (A ∨ B) → (C
 -- | Or.inl a => Or.inl (h a)
 -- | Or.inr b => Or.inr (h b)
 
-theorem And.symm { A B: Prop } : (A ∧ B) = (B ∧ A) := by
+theorem And.symmetric { A B: Prop } : (A ∧ B) = (B ∧ A) := by
   apply propext
   apply Iff.intro
   repeat {

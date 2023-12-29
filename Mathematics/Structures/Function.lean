@@ -1,4 +1,4 @@
-import Mathematics.Structures.Naturals
+import Mathematics.Structures.Numbers.Natural
 
 def is_fixed_point { T: Type } (x: T) (f: T → T) : Prop := f x = x
 

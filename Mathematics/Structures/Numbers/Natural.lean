@@ -46,18 +46,18 @@ theorem add.successor (a b: Natural) : a + successor b = successor (a + b) := by
   | zero => rfl
   | successor n n_ih => rw [successor.add, successor.add, n_ih]
 
-theorem add.inv.cancel (a b c: Natural) : a = b → a + c = b + c := by
+theorem add.inverse.cancel (a b c: Natural) : a = b → a + c = b + c := by
   intro h1
   induction c with
   | zero => rw [h1]
   | successor n n_ih => rw [add.successor, add.successor, n_ih]
 
-theorem add.comm (a b: Natural) : a + b = b + a := by
+theorem add.commutative (a b: Natural) : a + b = b + a := by
   induction a with
   | zero => rw [zero.eq_zero, add.zero, zero.add]
   | successor n n_ih => rw [successor.add, add.successor, n_ih]
 
-theorem add.assoc (a b c: Natural) : a + (b + c) = a + b + c := by
+theorem add.associative (a b c: Natural) : a + (b + c) = a + b + c := by
   induction c with
   | zero => rw [zero.eq_zero, add.zero, add.zero]
   | successor n n_ih => rw [add.successor, add.successor, add.successor, n_ih]
@@ -72,7 +72,7 @@ theorem add.left_cancel (a b c: Natural) : a + b = c + b ↔ a = c := by
     exact ih (successor.inj _ _ h1)
   }
   intro h2
-  rw [h2, add.comm]
+  rw [h2, add.commutative]
 
 theorem add.right_cancel (a b c: Natural) : b + a = b + c ↔ a = c := by
   apply Iff.intro
@@ -164,7 +164,7 @@ instance : PartialOrder Natural LE.le := {
     unfold LE.le
     intro h1
     let ⟨⟨c1, h1⟩, ⟨c2, h2⟩⟩ := h1
-    rw [←h1, ←add.assoc] at h2
+    rw [←h1, ←add.associative] at h2
     have h3 : c1 + c2 = 0 := add.left_zero_cancel a (c1 + c2) h2
     have h4 : c1 = 0 := (sum_eq_zero_implies_either_zero c1 c2 h3).left
     rw [h4, add.zero] at h1
@@ -175,7 +175,7 @@ instance : PartialOrder Natural LE.le := {
     intro h1
     let ⟨⟨c1, h1⟩, ⟨c2, h2⟩⟩ := h1
     apply Exists.intro (c1 + c2)
-    rw [←h1, ←add.assoc] at h2
+    rw [←h1, ←add.associative] at h2
     exact h2
 }
 
@@ -187,142 +187,177 @@ theorem not.le.not.equal (a b: Natural) (h1: ¬(a <= b)): a ≠ b := by
 
 end less_than
 
-namespace min.max
+namespace min_max
 
 open less_than
 
 def Natural.min.of (n m: Natural) : Natural := if n <= m then n else m
 
 -- Similar to Exists
--- TODO https://leanprover-community.github.io/mathlib4.docs/Mathlib/Init/Data/Nat/Lemmas.html#Nat.find
+-- TODO https://leanprover-commutativeunity.github.io/mathlib4.docs/Mathlib/Init/Data/Nat/Lemmas.html#Nat.find
 def Natural.min.under (n: Natural) (p: Natural → Prop) : Prop := p n ∧ ¬∃m: Natural, m <= n → p m
 
 def Natural.max.of (n m: Natural) : Natural := if n <= m then m else n
 
 example : min 2 4 = 2 := by unfold min; rfl
 
-end min.max
+end min_max
 
 namespace multiplication
 
 open Natural addition
 
-def Natural.mul : Natural → Natural → Natural
+def Natural.multiply : Natural → Natural → Natural
 | 0, _ => 0
-| (successor a), b => (mul a b) + b
+| (successor a), b => (multiply a b) + b
 
-instance : Mul Natural := ⟨Natural.mul⟩
+instance : Mul Natural := ⟨Natural.multiply⟩
 
-theorem zero.mul (n: Natural) : 0 * n = 0 := rfl
-theorem successor.mul (a b: Natural) : successor a * b = a * b + b := rfl
+theorem zero.multiply (n: Natural) : 0 * n = 0 := rfl
+theorem successor.multiply (a b: Natural) : successor a * b = a * b + b := rfl
 
-theorem mul.zero (n: Natural) : n * 0 = 0 := by
+theorem multiply.zero (n: Natural) : n * 0 = 0 := by
   induction n with
   | zero => rfl
-  | successor n ih => rw [successor.mul, add.zero, ih]
+  | successor n ih => rw [successor.multiply, add.zero, ih]
 
-theorem mul.one (n: Natural) : n * 1 = n := by
+theorem multiply.one (n: Natural) : n * 1 = n := by
   induction n with
-  | zero => rw [zero.eq_zero, zero.mul]
-  | successor n ih => rw [successor.mul, ih, add.one]
+  | zero => rw [zero.eq_zero, zero.multiply]
+  | successor n ih => rw [successor.multiply, ih, add.one]
 
-theorem mul.successor (a b: Natural) : a * successor b = a * b + a := by
+theorem multiply.two (n: Natural) : n * 2 = n + n := by
+  induction n with
+  | zero => rfl
+  | successor n ih =>
+    rw [
+      successor.multiply,
+      ih,
+      add.successor,
+      add.commutative (.successor n) n,
+      ←add.successor,
+      ←add.one,
+      ←add.one,
+      add.associative,
+      add.associative,
+      ←add.associative _ 1 1
+    ]; rfl
+
+theorem multiply.successor (a b: Natural) : a * successor b = a * b + a := by
   induction a with
-  | zero => rw [zero.eq_zero, zero.mul, zero.mul, zero.add]
-  | successor a ih => rw [successor.mul, successor.mul, ih, ←add.assoc, add.successor, ←add.assoc, add.successor b, add.comm a]
+  | zero => rw [zero.eq_zero, zero.multiply, zero.multiply, zero.add]
+  | successor a ih => rw [successor.multiply, successor.multiply, ih, ←add.associative, add.successor, ←add.associative, add.successor b, add.commutative a]
 
-theorem one.mul (n: Natural) : 1 * n = n := by
+theorem one.multiplytiply (n: Natural) : 1 * n = n := by
   induction n with
-  | zero => rw [zero.eq_zero, mul.zero]
-  | successor n ih => rw [mul.successor, ih, add.one]
+  | zero => rw [zero.eq_zero, multiply.zero]
+  | successor n ih => rw [multiply.successor, ih, add.one]
 
 -- Distributivity #TODO got to be a shorter way
-theorem mul.add (a b c: Natural) : a * (b + c) = a * b + a * c := by
+theorem multiply.add (a b c: Natural) : a * (b + c) = a * b + a * c := by
   induction a with
-  | zero => rw [zero.eq_zero, zero.mul, zero.mul, zero.mul, zero.add]
+  | zero => rw [zero.eq_zero, zero.multiply, zero.multiply, zero.multiply, zero.add]
   | successor a ih => rw [
-    successor.mul,
+    successor.multiply,
     ih,
-    successor.mul,
-    successor.mul,
-    ←add.assoc _ b _,
-    add.comm b (a * c + c),
-    ←add.assoc (a * c),
-    add.comm c b,
-    add.assoc,
-    add.assoc,
-    add.assoc,
+    successor.multiply,
+    successor.multiply,
+    ←add.associative _ b _,
+    add.commutative b (a * c + c),
+    ←add.associative (a * c),
+    add.commutative c b,
+    add.associative,
+    add.associative,
+    add.associative,
   ]
 
-theorem mul.comm (a b: Natural) : a * b = b * a := by
+def multiply.distributive := multiply.add
+
+theorem multiply.commutative (a b: Natural) : a * b = b * a := by
   induction a with
-  | zero => rw [zero.eq_zero, mul.zero, zero.mul]
-  | successor a ih => rw [mul.successor, successor.mul]; exact (add.left_cancel _ _ _).2 ih
+  | zero => rw [zero.eq_zero, multiply.zero, zero.multiply]
+  | successor a ih => rw [multiply.successor, successor.multiply]; exact (add.left_cancel _ _ _).2 ih
 
-theorem mul.assoc (a b c: Natural) : (a * b) * c = a * (b * c) := by
+theorem multiply.associative (a b c: Natural) : (a * b) * c = a * (b * c) := by
   induction c with
-  | zero => rw [zero.eq_zero, mul.zero, mul.zero, mul.zero]
-  | successor c ih => rw [mul.successor, mul.successor, mul.add, ih]
+  | zero => rw [zero.eq_zero, multiply.zero, multiply.zero, multiply.zero]
+  | successor c ih => rw [multiply.successor, multiply.successor, multiply.add, ih]
 
-theorem mul.eq.zero (a b: Natural) : a * b = 0 → a = 0 ∨ b = 0 := by
+theorem multiply.eq.zero (a b: Natural) : a * b = 0 → a = 0 ∨ b = 0 := by
   intro h1
   induction a with
   | zero => exact Or.inl zero.eq_zero
   -- TODO doesn't use ih!!
   | successor a _ih => {
-    rw [successor.mul] at h1
+    rw [successor.multiply] at h1
     have h2 := sum_eq_zero_implies_either_zero _ _ h1
     exact Or.inr h2.right
   }
 
 end multiplication
 
+namespace factorial
+
+open Natural
+
+/-- TODO class and syntax? -/
+def Natural.factorial : Natural → Natural
+| 0 => 1
+-- TODO can bind and reuse?
+| (successor a) => (successor a) * (factorial a)
+
+-- #eval (3: Natural).factorial # Doesn't work :?
+
+-- TODO chose function etc
+
+end factorial
+
 namespace exponentiation
 
 open Natural multiplication
 
-def Natural.pow : Natural → Natural → Natural
+def Natural.power : Natural → Natural → Natural
 | _, 0 => 1
-| a, (successor b) => (pow a b) * a
+| a, (successor b) => (power a b) * a
 
-instance : Pow Natural Natural := ⟨Natural.pow⟩
+instance : Pow Natural Natural := ⟨Natural.power⟩
 
-theorem pow.zero (n: Natural) : n ^ 0 = 1 := rfl
-theorem pow.successor (m n: Natural) : n ^ successor m = n ^ m * n := rfl
+theorem power.zero (n: Natural) : n ^ (0: Natural) = 1 := rfl
+theorem power.successor (m n: Natural) : n ^ successor m = n ^ m * n := rfl
 
-theorem pow.one (n: Natural) : n ^ 1 = n := by
-  rw [←successor.zero_eq_one, pow.successor, zero.eq_zero, pow.zero, one.mul]
+theorem power.one (n: Natural) : n ^ (1: Natural) = n := by
+  rw [←successor.zero_eq_one, power.successor, zero.eq_zero, power.zero, one.multiplytiply]
 
-theorem one.pow (n: Natural) : 1 ^ n = 1 := by
+theorem one.power (n: Natural) : (1: Natural) ^ n = 1 := by
   induction n with
-  | zero => exact zero.eq_zero ▸ pow.zero 1
-  | successor n ih => rw [pow.successor, mul.one, ih]
+  | zero => exact zero.eq_zero ▸ power.zero 1
+  | successor n ih => rw [power.successor, multiply.one, ih]
 
-theorem pow.add (n a b: Natural) : n ^ (a + b) = n ^ a * n ^ b := by
+theorem power.add (n a b: Natural) : n ^ (a + b) = n ^ a * n ^ b := by
   induction a with
-  | zero => rw [zero.eq_zero, addition.zero.add, pow.zero, one.mul]
-  | successor a ih => rw [addition.successor.add, pow.successor, pow.successor, ih, mul.assoc, mul.comm _ n, mul.assoc]
+  | zero => rw [zero.eq_zero, addition.zero.add, power.zero, one.multiplytiply]
+  | successor a ih => rw [addition.successor.add, power.successor, power.successor, ih, multiply.associative, multiply.commutative _ n, multiply.associative]
 
 -- TODO simpler ?
-theorem mul.pow (n a b: Natural) : (a * b) ^ n = a ^ n * b ^ n := by
+theorem multiply.power (n a b: Natural) : (a * b) ^ n = a ^ n * b ^ n := by
   induction n with
-  | zero => rw [zero.eq_zero, pow.zero, pow.zero, pow.zero, mul.one]
+  | zero => rw [zero.eq_zero, power.zero, power.zero, power.zero, multiply.one]
   | successor n ih => rw [
-    pow.successor,
-    pow.successor,
-    pow.successor,
+    power.successor,
+    power.successor,
+    power.successor,
     ih,
-    mul.assoc,
-    mul.assoc,
-    mul.comm (b ^ n),
-    mul.comm (b ^ n),
-    mul.assoc,
+    multiply.associative,
+    multiply.associative,
+    multiply.commutative (b ^ n),
+    multiply.commutative (b ^ n),
+    multiply.associative,
   ]
 
-theorem pow.mul (n a b: Natural) : n ^ (a * b) = (n ^ a) ^ b := by
+theorem power.multiply (n a b: Natural) : n ^ (a * b) = (n ^ a) ^ b := by
   induction a with
-  | zero => rw [zero.eq_zero, zero.mul, pow.zero, one.pow]
-  | successor a ih => rw [successor.mul, pow.add, pow.successor, ih, mul.pow]
+  | zero => rw [zero.eq_zero, zero.multiply, power.zero, one.power]
+  | successor a ih => rw [successor.multiply, power.add, power.successor, ih, multiply.power]
 
 end exponentiation
 
@@ -332,21 +367,23 @@ open multiplication
 
 def divides (f: Natural) (n: Natural) : Prop := ∃m: Natural, m * n = f
 
-example : divides 8 4 := ⟨2, rfl⟩
+infix:20 " ∣ " => divides
 
-theorem divides.self (n: Natural) : divides n n := ⟨1, one.mul n⟩
+example : 8 ∣ 4 := ⟨2, rfl⟩
 
-theorem one.divides (n: Natural) : divides n 1 := ⟨n, mul.one n⟩
+theorem divides.self (n: Natural) : n ∣ n := ⟨1, one.multiplytiply n⟩
+
+theorem one.divides (n: Natural) : n ∣ 1 := ⟨n, multiply.one n⟩
 
 end divides
 
 namespace modulo_congurence
 
-def Natural.cong (a b m : Natural) : Prop := ∃n: Natural, b = m * n + a
+def Natural.congruence (a b m : Natural) : Prop := ∃n: Natural, b = m * n + a
 
-notation a " ≡ " b " mod " m  => Natural.cong a b m
+notation a " ≡ " b " mod " m  => Natural.congruence a b m
 
-example : 5 ≡ 7 mod 2 := by apply Exists.intro 1; rfl
+example : 5 ≡ 7 mod 2 := ⟨1, rfl⟩
 
 theorem congruence.add (a b m : Natural) : (a ≡ b mod m) → (a ≡ (b + m) mod m) := by
   intro h1
@@ -354,11 +391,11 @@ theorem congruence.add (a b m : Natural) : (a ≡ b mod m) → (a ≡ (b + m) mo
   apply Exists.intro (n + 1)
   rw [
     h2,
-    multiplication.mul.add,
-    multiplication.mul.one,
-    ←addition.add.assoc,
-    addition.add.comm a m,
-    addition.add.assoc
+    multiplication.multiply.add,
+    multiplication.multiply.one,
+    ←addition.add.associative,
+    addition.add.commutative a m,
+    addition.add.associative
   ]
 
 -- TODO congruence class
