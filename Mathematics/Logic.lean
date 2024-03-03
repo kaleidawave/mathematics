@@ -70,3 +70,12 @@ theorem dm1 { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
     | inl a => exact h.left a
     | inr a => exact h.right a
 ⟩
+
+theorem ImpliesCycle { a b c: Prop } : ((a → b) ∧ (b → c) ∧ (c → a)) = ((a ↔ b) ∧ (b ↔ c) ∧ (c ↔ a)) := propext ⟨
+  fun ⟨ab, bc, ca⟩ => ⟨
+    ⟨ab, ca ∘ bc⟩,
+    ⟨bc, ab ∘ ca⟩,
+    ⟨ca, bc ∘ ab⟩
+  ⟩,
+  fun cycle => ⟨cycle.1.1, cycle.2.1.1, cycle.2.2.1⟩
+⟩

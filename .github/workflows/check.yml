@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-lean@v1
+    - uses: Julian/setup-lean@v1
     - run: lake build
 
 # steps:

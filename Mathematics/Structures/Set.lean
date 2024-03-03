@@ -102,7 +102,7 @@ theorem Set.union_is_superset' (s₁ s₂: Set A) : Set.subset s₂ (Set.union s
 theorem Set.intersection.symmetric (s₁ s₂: Set A) : Set.intersection s₁ s₂ = Set.intersection s₂ s₁ := by
   unfold Set.intersection
   funext a
-  rw [And.symm]
+  rw [And.symmetric]
 
 theorem Set.intersection.self (s₁: Set A) : Set.intersection s₁ s₁ = s₁ := by
   unfold Set.intersection
@@ -119,6 +119,16 @@ theorem Set.intersection.empty (s₁ : Set A) : Set.intersection s₁ (Set.empty
   exact ((Set.empty.no_members' a) h1.right).elim
   intro h2
   exact ((Set.empty.no_members' a) h2).elim
+
+theorem Set.intersection.universal (s₁ : Set A) : Set.intersection s₁ (Set.universal A) = s₁ := by
+  unfold Set.intersection
+  funext a
+  apply propext
+  apply Iff.intro
+  intro h1
+  exact h1.1
+  intro h2
+  exact ⟨h2, Set.universal.includes a⟩
 
 theorem Set.union.empty (s₁: Set A) : Set.union s₁  (Set.empty A) = s₁ := by
   unfold Set.union
