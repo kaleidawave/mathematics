@@ -55,7 +55,7 @@ theorem curry { a b c: Prop } : (a → b → c) ↔ a ∧ b → c := ⟨
   by intros h h1 h2; exact h ⟨h1, h2⟩
 ⟩
 
-theorem dm1 { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
+theorem DeMorgan.not_or { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
   by
     intro h
     apply And.intro
@@ -69,6 +69,19 @@ theorem dm1 { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
     cases h2 with
     | inl a => exact h.left a
     | inr a => exact h.right a
+⟩
+
+theorem DeMorgan.not_and { a b : Prop } : Not (a ∧ b) ↔ Not a ∨ Not b := ⟨
+  by
+    intro h
+    by_cases h1: a
+    exact .inr (h ⟨h1, ·⟩)
+    exact .inl h1,
+  by
+    intros h1 h2
+    cases h1 with
+    | inl l => exact l h2.1
+    | inr r => exact r h2.2
 ⟩
 
 theorem ImpliesCycle { a b c: Prop } : ((a → b) ∧ (b → c) ∧ (c → a)) = ((a ↔ b) ∧ (b ↔ c) ∧ (c ↔ a)) := propext ⟨

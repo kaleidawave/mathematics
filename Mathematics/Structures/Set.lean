@@ -26,6 +26,8 @@ def Set.singular {A: Type} (a: A) : Set A := fun item => item = a
 /-- A set with no items -/
 def Set.empty (A: Type) : Set A := fun _ => false
 
+def Set.complement {A: Type} (s: Set A) : Set A := fun item => ¬(s item)
+
 namespace operators
 
 variable { A: Type }
@@ -58,6 +60,7 @@ infix:20 " ∩ " => Set.intersection
 infix:20 " ∪ " => Set.union
 infix:20 " ⊆ " => Set.subset
 infix:20 " ⊇ " => Set.superset
+postfix:20 "ᶜ" => Set.complement
 notation "∅" => Set.empty _
 
 end operators
@@ -91,11 +94,21 @@ theorem Set.union_is_superset (s₁ s₂: Set A) : Set.subset s₁  (Set.union s
   apply Or.inl
   exact a_in_s₁
 
-
-theorem Set.union.symmetric (s₁ s₂: Set A) : Set.union s₁ s₂ = Set.union s₂ s₁  := by
+theorem Set.union.symmetric (s₁ s₂: Set A) : Set.union s₁ s₂ = Set.union s₂ s₁ := by
   funext a
   unfold Set.union
   rw [Or.symmetric]
+
+theorem Set.complement.complement (s₁: Set A) : Set.complement (Set.complement s₁) = s₁ := by
+  unfold Set.complement
+  rw [Set.extensionality]
+  intro h1
+  apply Iff.intro
+  intro h2
+  sorry
+  intro h2
+  intro h3
+  exact h3 h2
 
 theorem Set.union_is_superset' (s₁ s₂: Set A) : Set.subset s₂ (Set.union s₁ s₂) := Set.union.symmetric s₁ s₂ ▸ Set.union_is_superset s₂ s₁
 
@@ -130,7 +143,7 @@ theorem Set.intersection.universal (s₁ : Set A) : Set.intersection s₁ (Set.u
   intro h2
   exact ⟨h2, Set.universal.includes a⟩
 
-theorem Set.union.empty (s₁: Set A) : Set.union s₁  (Set.empty A) = s₁ := by
+theorem Set.union.empty (s₁: Set A) : Set.union s₁ (Set.empty A) = s₁ := by
   unfold Set.union
   funext a
   apply propext
@@ -141,11 +154,65 @@ theorem Set.union.empty (s₁: Set A) : Set.union s₁  (Set.empty A) = s₁ := 
   | inr h1 => exact ((Set.empty.no_members' a) h1).elim
   exact Or.inl
 
-theorem Set.disjoint.self_implies_empty (s₁: Set A) : Set.disjoint s₁ s₁  → s₁ = Set.empty A := by
+theorem Set.disjoint.self_implies_empty (s₁: Set A) : Set.disjoint s₁ s₁ → s₁ = Set.empty A := by
   intro h1
   unfold Set.disjoint at h1
   have h2 := Set.intersection.self s₁
   exact Eq.trans h2.symm h1
+
+theorem Set.disjoint.symmetric (s₁ s₂: Set A) : Set.disjoint s₁ s₂ = Set.disjoint s₂ s₁ := by
+  unfold Set.disjoint
+  rw [Set.intersection.symmetric]
+
+theorem Set.subset.right_complement_eq_disjoint (s₁ s₂: Set A) : Set.subset s₁ (Set.complement s₂) ↔ Set.disjoint s₁ s₂ := by
+  apply Iff.intro
+  {
+    unfold Set.disjoint
+    rw [Set.extensionality]
+    intros h1 a
+    apply Iff.intro
+    {
+      intro h3
+      exact False.elim (((h1 a) h3.1) h3.2)
+    }
+    {
+      intro h2
+      exact False.elim ((Set.empty.no_members' a) h2)
+    }
+  }
+  {
+    intros h1 a aInS₁ aInS₂
+    have ⟨d, _⟩ := ((Set.extensionality _ _).1 h1) a
+    exact (Set.empty.no_members' a) (d ⟨aInS₁, aInS₂⟩)
+  }
+
+theorem Set.subset.right_complement_eq_disjoint' (s₁ s₂: Set A) : Set.subset s₁ (Set.complement s₂) ↔ Set.disjoint s₂ s₁ := Set.disjoint.symmetric s₁ s₂ ▸ Set.subset.right_complement_eq_disjoint s₁ s₂
+
+theorem Set.subset.left_complement_eq_subset (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ ↔ Set.subset s₂ (Set.complement s₁) := by
+  apply Iff.intro
+  {
+    intro h1 a h2 n
+    have d := h1 a
+    sorry
+  }
+  {
+    intro h1 a h2
+
+    sorry
+  }
+
+theorem Set.subset.left_complement_eq_disjoint (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ ↔ Set.disjoint s₁ s₂ := by
+  apply Iff.intro
+  {
+    sorry
+  }
+  {
+    intros h1 a h2
+    have ⟨d, r⟩ := ((Set.extensionality _ _).1 h1) a
+    sorry
+    -- have ⟨d, _⟩ := ((Set.extensionality _ _).1 h1) a
+    -- exact (Set.empty.no_members' a) (d ⟨aInS₁, aInS₂⟩)
+  }
 
 end theorems
 
