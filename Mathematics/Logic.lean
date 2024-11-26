@@ -92,3 +92,36 @@ theorem ImpliesCycle { a b c: Prop } : ((a → b) ∧ (b → c) ∧ (c → a)) =
   ⟩,
   fun cycle => ⟨cycle.1.1, cycle.2.1.1, cycle.2.2.1⟩
 ⟩
+
+-- TODO better name
+theorem Not.not_eq_symmetric (p q: Prop) : (¬p → ¬q) = (q → p) := by
+  refine propext ?_
+  constructor
+  {
+    intro h1 h2
+    by_cases p' : p
+    exact p'
+    exact False.elim (h1 p' h2)
+  }
+  {
+    intro h1 h2
+    by_cases q' : q
+    exact False.elim (h2 (h1 q'))
+    exact q'
+  }
+
+example (p q: A → Prop) : (∀ a: A, ¬(p a) → ¬(q a)) = ∀ a: A, (q a → p a) := by
+  refine forall_congr ?h
+  exact fun _ => Not.not_eq_symmetric _ _
+
+example (p q: Prop) (h1: p ∨ q) (h2: ¬q): p := by
+  cases h1 with
+  | inl l => exact l
+  | inr r => exact (h2 r).elim
+
+example (p q: Prop) (h1: p ∨ q) (h2: ¬p): q := by
+  cases h1 with
+  | inl l => exact (h2 l).elim
+  | inr r => exact r
+
+example (p: Prop) : ¬(p ∧ ¬p) := fun ⟨l, r⟩ => (r l)

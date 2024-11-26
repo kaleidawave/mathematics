@@ -4,11 +4,10 @@ def Set (A: Type): Type := A → Prop
 
 @[simp]
 theorem Set.extensionality (s₁ s₂: Set A) : s₁ = s₂ ↔ ∀ a: A, s₁ a ↔ s₂ a := by
-  apply Iff.intro
+  constructor
   {
    intro h1 a
    rw [h1]
-   exact Iff.refl _
   }
   {
     intro h1
@@ -18,13 +17,16 @@ theorem Set.extensionality (s₁ s₂: Set A) : s₁ = s₂ ↔ ∀ a: A, s₁ a
 
 
 /-- Containing all items of a type -/
-def Set.universal (A: Type) : Set A := fun _ => true
+@[simp]
+def Set.universal (A: Type) : Set A := fun _ => True
 
 /-- Containing a single item -/
+@[simp]
 def Set.singular {A: Type} (a: A) : Set A := fun item => item = a
 
 /-- A set with no items -/
-def Set.empty (A: Type) : Set A := fun _ => false
+@[simp]
+def Set.empty (A: Type) : Set A := fun _ => False
 
 def Set.complement {A: Type} (s: Set A) : Set A := fun item => ¬(s item)
 
@@ -40,7 +42,7 @@ instance {A B: Type} : HMul (Set A) (Set B) (Set (A × B)) := ⟨Set.cartesian_p
 def Set.includes (z: Set A) (a: A) : Prop := z a
 
 @[simp]
-instance { A: Type }: Membership A (Set A) := ⟨fun z a => Set.includes a z⟩
+instance { A: Type }: Membership A (Set A) := ⟨fun z a => Set.includes z a⟩
 
 @[simp]
 def Set.union (s₁ s₂: Set A) : Set A := fun (a) => a ∈ s₁ ∨ a ∈ s₂
@@ -70,12 +72,12 @@ namespace theorems
 open operators
 variable { A: Type }
 
-theorem Set.universal.includes (a: A) : a ∈ Set.universal A := rfl
+theorem Set.universal.includes (a: A) : a ∈ Set.universal A := by simp
 
 theorem Set.singular.includes.self (a: A) : a ∈ Set.singular a := rfl
 
 theorem Set.singular.includes (a b: A) : b ∈ Set.singular a ↔ a = b := by
-  apply Iff.intro
+  constructor
   intro h1
   unfold Set.singular at h1
   rw [h1]
@@ -99,16 +101,12 @@ theorem Set.union.symmetric (s₁ s₂: Set A) : Set.union s₁ s₂ = Set.union
   unfold Set.union
   rw [Or.symmetric]
 
+-- Requires classical reasoning for double not
+open Classical
+
 theorem Set.complement.complement (s₁: Set A) : Set.complement (Set.complement s₁) = s₁ := by
   unfold Set.complement
-  rw [Set.extensionality]
-  intro h1
-  apply Iff.intro
-  intro h2
-  sorry
-  intro h2
-  intro h3
-  exact h3 h2
+  simp only [Set.extensionality, Decidable.not_not]
 
 theorem Set.union_is_superset' (s₁ s₂: Set A) : Set.subset s₂ (Set.union s₁ s₂) := Set.union.symmetric s₁ s₂ ▸ Set.union_is_superset s₂ s₁
 
@@ -127,7 +125,7 @@ theorem Set.intersection.empty (s₁ : Set A) : Set.intersection s₁ (Set.empty
   unfold Set.intersection
   funext a
   apply propext
-  apply Iff.intro
+  constructor
   intro h1
   exact ((Set.empty.no_members' a) h1.right).elim
   intro h2
@@ -137,7 +135,7 @@ theorem Set.intersection.universal (s₁ : Set A) : Set.intersection s₁ (Set.u
   unfold Set.intersection
   funext a
   apply propext
-  apply Iff.intro
+  constructor
   intro h1
   exact h1.1
   intro h2
@@ -147,12 +145,48 @@ theorem Set.union.empty (s₁: Set A) : Set.union s₁ (Set.empty A) = s₁ := b
   unfold Set.union
   funext a
   apply propext
-  apply Iff.intro
+  constructor
   intro h1
   cases h1 with
   | inl h1 => exact h1
   | inr h1 => exact ((Set.empty.no_members' a) h1).elim
   exact Or.inl
+
+theorem Set.subset.complement_complement (s₁ s₂: Set A) : Set.subset (Set.complement s₁) (Set.complement s₂) = Set.subset s₂ s₁ := by
+  refine forall_congr ?h
+  exact fun _ => Not.not_eq_symmetric _ _
+
+theorem Set.subset.left_complement_eq_subset (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ = Set.subset (Set.complement s₂) s₁ := by
+  have d := Set.subset.complement_complement s₁ (s₂ᶜ)
+  rw [Set.complement.complement] at d
+  rw [d]
+
+theorem Set.subset.left_complement_eq_subset' (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ = Set.subset (Set.complement s₂) s₁ := by
+  have d := Set.complement.complement _ ▸ Set.subset.complement_complement s₁ (s₂ᶜ)
+  exact d
+
+theorem Set.subset.left_complement_eq_subset'' (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ = Set.subset (Set.complement s₂) s₁ := by
+  have d := Set.complement.complement _ ▸ Set.subset.complement_complement s₁ (s₂ᶜ)
+  exact d
+
+-- theorem Set.subset.left_complement_eq_disjoint (s₁ s₂: Set A) : (Set.subset (Set.complement s₁) s₂) ↔ Set.disjoint s₁ s₂ := by
+--   constructor
+--   {
+--     intro h1
+--     sorry
+--   }
+--   {
+--     intro h1 a h2
+--     have ⟨d, r⟩ := ((Set.extensionality _ _).1 h1) a
+
+--     sorry
+--     -- have ⟨d, _⟩ := ((Set.extensionality _ _).1 h1) a
+--     -- exact (Set.empty.no_members' a) (d ⟨aInS₁, aInS₂⟩)
+--   }
+
+namespace disjoint
+
+theorem Set.disjoint.empty (s₁: Set A) : Set.disjoint s₁ (Set.empty A) := Set.intersection.empty s₁
 
 theorem Set.disjoint.self_implies_empty (s₁: Set A) : Set.disjoint s₁ s₁ → s₁ = Set.empty A := by
   intro h1
@@ -164,13 +198,26 @@ theorem Set.disjoint.symmetric (s₁ s₂: Set A) : Set.disjoint s₁ s₂ = Set
   unfold Set.disjoint
   rw [Set.intersection.symmetric]
 
+theorem Set.disjoint.mem_neg {A : Type} (s₁ s₂ : Set A): (Set.disjoint s₁ s₂) → (∀ e: A, s₁ e → ¬(s₂ e)) := by
+  intro h1 e h2 h3
+  unfold Set.disjoint Set.intersection at h1
+  rw [Set.extensionality] at h1
+  let h4 := (h1 e).1 ⟨h2, h3⟩
+  unfold Set.empty at h4
+  exact h4
+
+theorem Set.disjoint.mem_neg' {A : Type} (s₁ s₂ : Set A): (Set.disjoint s₁ s₂) → (∀ e: A, s₂ e → ¬(s₁ e)) := by
+  intro h1
+  rw [Set.disjoint.symmetric] at h1
+  exact Set.disjoint.mem_neg s₂ s₁ h1
+
 theorem Set.subset.right_complement_eq_disjoint (s₁ s₂: Set A) : Set.subset s₁ (Set.complement s₂) ↔ Set.disjoint s₁ s₂ := by
-  apply Iff.intro
+  constructor
   {
     unfold Set.disjoint
     rw [Set.extensionality]
-    intros h1 a
-    apply Iff.intro
+    intro h1 a
+    constructor
     {
       intro h3
       exact False.elim (((h1 a) h3.1) h3.2)
@@ -181,38 +228,14 @@ theorem Set.subset.right_complement_eq_disjoint (s₁ s₂: Set A) : Set.subset 
     }
   }
   {
-    intros h1 a aInS₁ aInS₂
+    intro h1 a aInS₁ aInS₂
     have ⟨d, _⟩ := ((Set.extensionality _ _).1 h1) a
     exact (Set.empty.no_members' a) (d ⟨aInS₁, aInS₂⟩)
   }
 
 theorem Set.subset.right_complement_eq_disjoint' (s₁ s₂: Set A) : Set.subset s₁ (Set.complement s₂) ↔ Set.disjoint s₂ s₁ := Set.disjoint.symmetric s₁ s₂ ▸ Set.subset.right_complement_eq_disjoint s₁ s₂
 
-theorem Set.subset.left_complement_eq_subset (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ ↔ Set.subset s₂ (Set.complement s₁) := by
-  apply Iff.intro
-  {
-    intro h1 a h2 n
-    have d := h1 a
-    sorry
-  }
-  {
-    intro h1 a h2
-
-    sorry
-  }
-
-theorem Set.subset.left_complement_eq_disjoint (s₁ s₂: Set A) : Set.subset (Set.complement s₁) s₂ ↔ Set.disjoint s₁ s₂ := by
-  apply Iff.intro
-  {
-    sorry
-  }
-  {
-    intros h1 a h2
-    have ⟨d, r⟩ := ((Set.extensionality _ _).1 h1) a
-    sorry
-    -- have ⟨d, _⟩ := ((Set.extensionality _ _).1 h1) a
-    -- exact (Set.empty.no_members' a) (d ⟨aInS₁, aInS₂⟩)
-  }
+end disjoint
 
 end theorems
 
@@ -236,7 +259,7 @@ theorem Set.image.union { A B: Type } (f: A → B) (s₁ s₂: Set A) :
   Set.image_of_set f (s₁ ∪ s₂) = ((Set.image_of_set f s₁) ∪ (Set.image_of_set f s₂)) := by
     rw [Set.extensionality]
     intro b
-    apply Iff.intro
+    constructor
     intro h1
     let ⟨a, h1, h2⟩ := h1
     -- TODO better syntax
