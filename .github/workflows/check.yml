@@ -10,11 +10,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: Julian/setup-lean@v1
+    - uses: leanprover/lean-action@v1
     - run: lake build
-
-# steps:
-# - name:
-#   run: |
-#     lean .\Mathematics.lean
-#     # lean .\Mathematics\**\*.lean

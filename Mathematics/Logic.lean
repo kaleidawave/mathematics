@@ -55,7 +55,7 @@ theorem curry { a b c: Prop } : (a → b → c) ↔ a ∧ b → c := ⟨
   by intros h h1 h2; exact h ⟨h1, h2⟩
 ⟩
 
-theorem dm1 { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
+theorem DeMorgan.not_or { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
   by
     intro h
     apply And.intro
@@ -71,6 +71,19 @@ theorem dm1 { a b : Prop } : Not (a ∨ b) ↔ Not a ∧ Not b := ⟨
     | inr a => exact h.right a
 ⟩
 
+theorem DeMorgan.not_and { a b : Prop } : Not (a ∧ b) ↔ Not a ∨ Not b := ⟨
+  by
+    intro h
+    by_cases h1: a
+    exact .inr (h ⟨h1, ·⟩)
+    exact .inl h1,
+  by
+    intros h1 h2
+    cases h1 with
+    | inl l => exact l h2.1
+    | inr r => exact r h2.2
+⟩
+
 theorem ImpliesCycle { a b c: Prop } : ((a → b) ∧ (b → c) ∧ (c → a)) = ((a ↔ b) ∧ (b ↔ c) ∧ (c ↔ a)) := propext ⟨
   fun ⟨ab, bc, ca⟩ => ⟨
     ⟨ab, ca ∘ bc⟩,
@@ -79,3 +92,36 @@ theorem ImpliesCycle { a b c: Prop } : ((a → b) ∧ (b → c) ∧ (c → a)) =
   ⟩,
   fun cycle => ⟨cycle.1.1, cycle.2.1.1, cycle.2.2.1⟩
 ⟩
+
+-- TODO better name
+theorem Not.not_eq_symmetric (p q: Prop) : (¬p → ¬q) = (q → p) := by
+  refine propext ?_
+  constructor
+  {
+    intro h1 h2
+    by_cases p' : p
+    exact p'
+    exact False.elim (h1 p' h2)
+  }
+  {
+    intro h1 h2
+    by_cases q' : q
+    exact False.elim (h2 (h1 q'))
+    exact q'
+  }
+
+example (p q: A → Prop) : (∀ a: A, ¬(p a) → ¬(q a)) = ∀ a: A, (q a → p a) := by
+  refine forall_congr ?h
+  exact fun _ => Not.not_eq_symmetric _ _
+
+example (p q: Prop) (h1: p ∨ q) (h2: ¬q): p := by
+  cases h1 with
+  | inl l => exact l
+  | inr r => exact (h2 r).elim
+
+example (p q: Prop) (h1: p ∨ q) (h2: ¬p): q := by
+  cases h1 with
+  | inl l => exact (h2 l).elim
+  | inr r => exact r
+
+example (p: Prop) : ¬(p ∧ ¬p) := fun ⟨l, r⟩ => (r l)
