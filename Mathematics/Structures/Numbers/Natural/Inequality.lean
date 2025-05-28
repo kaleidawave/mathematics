@@ -70,6 +70,12 @@ theorem Natural.less_than.equal.trans {a b c: Natural} (h1: a <= b) (h2: b <= c)
   exists (d + e)
   rw [←h2, ←h1, ←add.associative]
 
+theorem Natural.less_than_implies_less_than_equal {m n: Natural} (h1: m < n): m <= n := by
+  obtain ⟨d, h1⟩ := h1
+  exists d.successor
+  rw [successor.add, ←add.successor] at h1
+  exact h1
+
 theorem Natural.less_than.equal.successor.l {n m: Natural} (h1: n <= m) : n.successor <= m.successor := by
   let ⟨w, h2⟩ := h1
   exact ⟨w, by rw [←h2, successor.add]⟩
@@ -124,6 +130,8 @@ theorem Natural.greater_than'.successor (n m: Natural) (h1: m < n) : (m < n.succ
 theorem Natural.less_than.equal.def (a b : Natural) : (a <= b) = Natural.less_than.equal a b := rfl
 theorem Natural.greater_than.equal.def (a b : Natural) : (a >= b) = Natural.less_than.equal b a := rfl
 theorem Natural.greater_than.equal.iff (a b : Natural) : a >= b ↔ b <= a := ⟨id, id⟩
+
+theorem Natural.less_than_not_greater_than {a b : Natural}: a < b → ¬(a ≥ b) := sorry
 
 theorem le_of_succ_le {n m : Natural} (h1 : n.successor ≤ m) : n ≤ m := by
   let ⟨w, h2⟩ := h1
@@ -261,6 +269,8 @@ instance : WellFoundedRelation Natural where
       match this with
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
+
+theorem subtraction_eq_iff_eq_add {c : Natural} (h : b <= a) : a -ₛ b = c ↔ a = c + b := sorry
 
 -- #eval (2: Natural) <= 5
 -- #eval ((2: Natural) < 5)

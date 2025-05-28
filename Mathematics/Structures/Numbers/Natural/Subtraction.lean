@@ -94,6 +94,10 @@ theorem subtraction.lhs.addition'' (n m: Natural) (h1: lte m n) : m + (n -ₛ m)
   obtain ⟨c, h1⟩ := h1
   rw [←h1, subtraction.lhs.addition']
 
+theorem subtraction.lhs.addition''' (n m: Natural) (h1: lte m n) : (n -ₛ m) + m = n := by
+  obtain ⟨c, h1⟩ := h1
+  rw [←h1, add.commutative, subtraction.lhs.addition']
+
 -- def hmm (a b c: Natural) := ((a + b) -ₛ c, a + (b -ₛ c))
 -- #eval hmm 1 2 3 -- FALSE, so cannot prove the below
 
