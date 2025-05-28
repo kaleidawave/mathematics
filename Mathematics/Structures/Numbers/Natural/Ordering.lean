@@ -64,6 +64,14 @@ theorem Natural.le_total (m n : Natural) : m ≤ n ∨ n ≤ m :=
   | Or.inl h => Or.inl (le_of_succ_le h)
   | Or.inr h => Or.inr h
 
+theorem Natural.lt_trichotomy (m n : Natural): m < n ∨ m = n ∨ n < m :=
+  match Natural.lt_or_ge m n with
+  | .inl h => .inl h
+  | .inr h =>
+    match Natural.eq_or_lt_of_le h with
+    | .inl h => .inr (.inl h.symm)
+    | .inr h => .inr (.inr h)
+
 /-- To exhibit a point -/
 theorem Natural.le_total.lem (m n : Natural) : m ≤ n ∨ n ≤ m := by
   by_cases h: m <= n
