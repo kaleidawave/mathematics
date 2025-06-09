@@ -27,7 +27,7 @@ theorem power.successor' (n: Natural) : a ^ Natural.successor n = a * a ^ n := b
   | successor n ih => rw [power.successor, Group.associativity, multiply.right_cancel_iff, ih]
 
 theorem power.one : a ^ (1: Natural) = a := by
-  rw [←successor.zero_eq_one, power.successor, power.zero, groups.one.multiply]
+  rw [←successor.zero_eq_one, power.successor, ←Natural.zero_def, power.zero, groups.one.multiply]
 
 theorem one.power (n: Natural) : (1 : T) ^ n = 1 := by
   induction n with
@@ -36,12 +36,12 @@ theorem one.power (n: Natural) : (1 : T) ^ n = 1 := by
 
 theorem power.add (m n : Natural) : a ^ (m + n) = a^m * a^n := by
   induction n with
-  | zero => rw [Natural.zero_def, Natural.add.zero, ←Natural.zero_def, power.zero, groups.multiply.one]
+  | zero => rw [Natural.zero_def, Natural.add_zero, ←Natural.zero_def, power.zero, groups.multiply.one]
   | successor n ih => rw [add.successor, power.successor, power.successor, groups.multiply.associative, multiply.right_cancel_iff, ih]
 
 theorem power.multiply (m n : Natural) : a ^ (m * n) = (a ^ m) ^ n := by
   induction n with
-  | zero => rw [Natural.zero_def, multiply.zero, ←Natural.zero_def, power.zero, power.zero]
+  | zero => rw [Natural.zero_def, Natural.multiply_zero, ←Natural.zero_def, power.zero, power.zero]
   | successor n ih => rw [power.successor, ←ih, ←power.add, multiply.successor]
 
 theorem multiply.power {U : Type} [AbelianGroup U] (a b: U) (n : Natural) : (a * b) ^ n = a ^ n * b ^ n := by
