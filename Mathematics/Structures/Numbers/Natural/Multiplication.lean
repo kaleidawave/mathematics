@@ -7,23 +7,23 @@ def Natural.multiply : Natural → Natural → Natural
 
 instance : Mul Natural := ⟨Natural.multiply⟩
 
-theorem zero.multiply (n: Natural) : 0 * n = 0 := rfl
+theorem Natural.zero_multiply (n: Natural) : 0 * n = 0 := rfl
 theorem zerod.multiply (n: Natural) : Natural.zero * n = 0 := rfl
 theorem successor.multiply (a b: Natural) : .successor a * b = a * b + b := rfl
 
 theorem multiply.def (a b: Natural) : a * b = Natural.multiply a b := rfl
 
-theorem multiply.zero (n: Natural) : n * 0 = 0 := by
+theorem Natural.multiply_zero (n: Natural) : n * 0 = 0 := by
   induction n with
   | zero => rfl
-  | successor n ih => rw [successor.multiply, Natural.add.zero, ih]
+  | successor n ih => rw [successor.multiply, Natural.add_zero, ih]
 
-theorem multiply.zerod (n: Natural): n * .zero = 0 := multiply.zero n
+theorem Natural.multiply_zerod (n: Natural): n * .zero = 0 := Natural.multiply_zero n
 
-theorem multiply.one (n: Natural) : n * 1 = n := by
+theorem Natural.multiply_one (n: Natural) : n * 1 = n := by
   induction n with
-  | zero => rw [Natural.zero_def, zero.multiply]
-  | successor n ih => rw [successor.multiply, ih, add.one]
+  | zero => rw [Natural.zero_def, zero_multiply]
+  | successor n ih => rw [successor.multiply, ih, Natural.add_one]
 
 theorem multiply.two (n: Natural) : n * 2 = n + n := by
   induction n with
@@ -34,47 +34,47 @@ theorem multiply.two (n: Natural) : n * 2 = n + n := by
 
 theorem multiply.successor (a b: Natural) : a * Natural.successor b = a * b + a := by
   induction a with
-  | zero => rw [Natural.zero_def, zero.multiply, zero.multiply, zero.add]
+  | zero => rw [Natural.zero_def, Natural.zero_multiply, Natural.zero_multiply, Natural.zero_add]
   | successor a ih =>
     rw [successor.multiply, successor.multiply, ih, add.successor, add.successor];
-    rw [add.associative _ b a, add.commutative b a, ←add.associative _ a b];
+    rw [Natural.add_associative _ b a, Natural.add_commutative b a, ←Natural.add_associative _ a b];
 
-theorem one.multiply (n: Natural) : 1 * n = n := by
+theorem Natural.one_multiply (n: Natural) : 1 * n = n := by
   induction n with
-  | zero => rw [Natural.zero_def, multiply.zero]
-  | successor n ih => rw [multiply.successor, ih, add.one]
+  | zero => rw [zero_def, multiply_zero]
+  | successor n ih => rw [multiply.successor, ih, Natural.add_one]
 
-theorem multiply.add (a b c: Natural) : a * (b + c) = a * b + a * c := by
+theorem Natural.multiply_add (a b c: Natural) : a * (b + c) = a * b + a * c := by
   induction a with
-  | zero => rw [Natural.zero_def, zero.multiply, zero.multiply, zero.multiply, zero.add]
+  | zero => rw [zero_def, zero_multiply, zero_multiply, zero_multiply, zero_add]
   | successor a ih =>
     rw [successor.multiply, ih, successor.multiply, successor.multiply];
     ac_nf
 
-def multiply.distributive := multiply.add
+def Natural.multiply.distributive := Natural.multiply_add
 
-theorem multiply.commutative (a b: Natural) : a * b = b * a := by
+theorem Natural.multiply_commutative (a b: Natural) : a * b = b * a := by
   induction a with
-  | zero => rw [Natural.zero_def, multiply.zero, zero.multiply]
+  | zero => rw [zero_def, multiply_zero, zero_multiply]
   | successor a ih =>
     rw [multiply.successor, successor.multiply];
-    exact (add.right_cancel (a * b) b (b * a)).mpr ih
+    exact (add_right_cancel (a * b) b (b * a)).mpr ih
 
-theorem multiply.distributive.right (a b c: Natural) : (b + c) * a = a * b + a * c := by
-  rw [multiply.commutative]
-  exact multiply.add a b c
+theorem Natural.multiply_distributive_right (a b c: Natural) : (b + c) * a = a * b + a * c := by
+  rw [multiply_commutative]
+  exact multiply_add a b c
 
-theorem multiply.associative (a b c: Natural) : (a * b) * c = a * (b * c) := by
+theorem Natural.multiply_associative (a b c: Natural) : (a * b) * c = a * (b * c) := by
   induction c with
-  | zero => rw [Natural.zero_def, multiply.zero, multiply.zero, multiply.zero]
-  | successor c ih => rw [multiply.successor, multiply.successor, multiply.add, ih]
+  | zero => rw [zero_def, multiply_zero, multiply_zero, multiply_zero]
+  | successor c ih => rw [multiply.successor, multiply.successor, multiply_add, ih]
 
-instance : Std.Commutative (α := Natural) (· * ·) := ⟨multiply.commutative⟩
-instance : Std.Associative (α := Natural) (· * ·) := ⟨multiply.associative⟩
+instance : Std.Commutative (α := Natural) (· * ·) := ⟨Natural.multiply_commutative⟩
+instance : Std.Associative (α := Natural) (· * ·) := ⟨Natural.multiply_associative⟩
 
 instance : Std.LawfulIdentity Natural.multiply 1 where
-  left_id := one.multiply
-  right_id := fun a => multiply.def a 1 ▸ multiply.one a
+  left_id := Natural.one_multiply
+  right_id := fun a => multiply.def a 1 ▸ Natural.multiply_one a
 
 theorem multiply.eq.zero (a b: Natural) : a * b = 0 → a = 0 ∨ b = 0 := by
   intro h1
@@ -83,7 +83,7 @@ theorem multiply.eq.zero (a b: Natural) : a * b = 0 → a = 0 ∨ b = 0 := by
   | successor a => {
     rw [successor.multiply] at h1
     right;
-    exact (add.eq.zero _ _ h1).right
+    exact (Natural.add_eq_zero _ _ h1).right
   }
 
 theorem multiply.neq.zero (a b: Natural) : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
@@ -101,7 +101,7 @@ theorem multiply.neq.zero (a b: Natural) : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 :
       }
       {
         intro h2
-        rw [h2, multiply.zero] at h1
+        rw [h2, Natural.multiply_zero] at h1
         contradiction
       }
     }
@@ -112,17 +112,17 @@ theorem multiply.neq.zero (a b: Natural) : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 :
     cases h3 with | inl h3 => exact h1.left h3 | inr h3 => exact h1.right h3
   }
 
-theorem multiply.eq.one (a b: Natural) : a * b = 1 → a = 1 ∧ b = 1 := by
+theorem Natural.multiply_eq_one (a b: Natural) : a * b = 1 → a = 1 ∧ b = 1 := by
   intro h1
   induction a with
   | zero => contradiction
   | successor a ih => {
-    have h2 := add.eq.one _ _ h1
+    have h2 := add_eq_one _ _ h1
     cases h2 with
     | inl h2 => {
       have b_eq := h2.right
       constructor
-      rw [b_eq, multiply.one] at h1; exact h1;
+      rw [b_eq, multiply_one] at h1; exact h1;
       exact b_eq
     }
     | inr h2 => {

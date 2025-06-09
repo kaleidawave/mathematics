@@ -14,7 +14,7 @@ infix:60 " / " => Natural.divide
 unsafe example (a: Natural) : a / (1: Natural) = a := by
   induction a with
   | zero => {
-    have x : Natural.zero < 1 := ⟨0, by rw [Natural.add.zero, successor.zero_eq_one]⟩
+    have x : Natural.zero < 1 := ⟨0, by rw [Natural.add_zero, Natural.zero_def, successor.zero_eq_one]⟩
     sorry
   }
   | successor n ih => {

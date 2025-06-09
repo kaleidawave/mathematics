@@ -16,11 +16,11 @@ instance : LT Natural := ⟨Natural.less_than⟩
 
 theorem Natural.less_than.equal.zero (n : Natural) (h1: n <= 0) : n = 0 := by
   have ⟨a2, h2⟩ := h1
-  exact (add.eq.zero n a2 h2).left
+  exact (add_eq_zero n a2 h2).left
 
 @[refl]
 theorem Natural.less_than.equal.self (n : Natural) : n <= n := by
-  exact ⟨0, Natural.add.zero n⟩
+  exact ⟨0, Natural.add_zero n⟩
 
 theorem Natural.less_than.def (a b : Natural) : (a < b) ↔ (Natural.successor a) <= b := by
   rfl
@@ -35,7 +35,7 @@ theorem Natural.less_than.zero.zero : ¬((0: Natural) < 0) := zero_never 0
 
 theorem Natural.less_than.equal.zero.zero (n: Natural) : ¬(n.successor <= 0) := by
   intro ⟨a, h1⟩
-  have ⟨l, _⟩ := add.eq.zero _ _ h1
+  have ⟨l, _⟩ := add_eq_zero _ _ h1
   contradiction
 
 theorem Natural.less_than.neq_zero (n : Natural) (h1: n ≠ 0): 0 < n := by
@@ -58,7 +58,7 @@ theorem Natural.less_than.equal.neq_one (n : Natural) (h1: n ≠ 0): 1 <= n := N
 
 theorem Natural.less_than.one (n : Natural) (h1: n < 1): n = 0 := by
   obtain ⟨c, h1⟩ := h1
-  cases add.eq.one _ _ h1 with
+  cases add_eq_one _ _ h1 with
   | inl h1 => exact successor.neq.zero _ h1.left |>.elim
   | inr h1 => exact successor.inj h1.left
 
@@ -68,7 +68,7 @@ theorem Natural.less_than.equal.trans {a b c: Natural} (h1: a <= b) (h2: b <= c)
   obtain ⟨d, h1⟩ := h1
   obtain ⟨e, h2⟩ := h2
   exists (d + e)
-  rw [←h2, ←h1, ←add.associative]
+  rw [←h2, ←h1, ←add_associative]
 
 theorem Natural.less_than_implies_less_than_equal {m n: Natural} (h1: m < n): m <= n := by
   obtain ⟨d, h1⟩ := h1
@@ -82,7 +82,7 @@ theorem Natural.less_than.equal.successor.l {n m: Natural} (h1: n <= m) : n.succ
 
 theorem Natural.less_than.equal.successor.r {n m: Natural} (h1: n.successor <= m.successor): n <= m := by
   induction n with
-  | zero => exact ⟨m, zero.add m⟩
+  | zero => exact ⟨m, zero_add m⟩
   | successor n ih =>
     have ⟨l, h2⟩ := h1
     rw [successor.add] at h2
@@ -106,7 +106,22 @@ theorem Natural.less_than.equal.add {x y a b: Natural} (h1: a <= b) (h2: x <= y)
     obtain ⟨c, h1⟩ := h1; obtain ⟨d, h2⟩ := h2
     rw [←h1, ←h2]
     exists (d + c)
-    rw [←add.associative, ←add.associative, add.associative x, add.commutative a d, ←add.associative]
+    rw [←add_associative, ←add_associative, add_associative x, add_commutative a d, ←add_associative]
+
+theorem Natural.add_left {a b: Natural} (c: Natural): a <= b ↔ a + c <= b + c := by
+  constructor
+  . intro ⟨n, h1⟩
+    exists n
+    rw [add_associative, add_commutative c, ←add_associative]
+    rw [h1]
+  . intro ⟨n, h1⟩
+    exists n
+    have : (a + n) + c = b + c := by ac_nf at h1 |-
+    exact Eq.symm ((fun a b c => (add_right_cancel a b c).mp) b c (a + n) (Eq.symm this))
+
+theorem Natural.add_right {a b: Natural} (c: Natural): a <= b ↔ c + a <= c + b := by
+  rw [add_commutative, add_commutative c]
+  exact add_left c
 
 theorem Natural.no_upper_bound : ¬(∃N: Natural, ∀n: Natural, n < N) := by
   intro ⟨N, h1⟩
@@ -130,8 +145,6 @@ theorem Natural.greater_than'.successor (n m: Natural) (h1: m < n) : (m < n.succ
 theorem Natural.less_than.equal.def (a b : Natural) : (a <= b) = Natural.less_than.equal a b := rfl
 theorem Natural.greater_than.equal.def (a b : Natural) : (a >= b) = Natural.less_than.equal b a := rfl
 theorem Natural.greater_than.equal.iff (a b : Natural) : a >= b ↔ b <= a := ⟨id, id⟩
-
-theorem Natural.less_than_not_greater_than {a b : Natural}: a < b → ¬(a ≥ b) := sorry
 
 theorem le_of_succ_le {n m : Natural} (h1 : n.successor ≤ m) : n ≤ m := by
   let ⟨w, h2⟩ := h1
@@ -193,7 +206,7 @@ theorem subtraction.zerod (n m: Natural) (h1: n.successor -ₛ m = 0) : n -ₛ m
     }
   }
 
-theorem le_subtraction (n m: Natural): n <= m ↔ n -ₛ m = 0 := by
+theorem Natural.le_subtraction (n m: Natural): n <= m ↔ n -ₛ m = 0 := by
   constructor
   {
     intro ⟨a, h1⟩
@@ -211,7 +224,7 @@ theorem le_subtraction (n m: Natural): n <= m ↔ n -ₛ m = 0 := by
   {
     intro h1
     induction n generalizing m with
-    | zero => exact ⟨m, by rw [Natural.zero_def, zero.add m];⟩
+    | zero => exact ⟨m, by rw [Natural.zero_def, zero_add m];⟩
     | successor n2 ih => {
       induction m with
       | zero => {
@@ -231,17 +244,17 @@ theorem le_subtraction (n m: Natural): n <= m ↔ n -ₛ m = 0 := by
     }
   }
 
-instance (a b : Natural) : Decidable (a <= b) := decidable_of_iff (a -ₛ b = 0) (le_subtraction a b).symm
+instance (a b : Natural) : Decidable (a <= b) := decidable_of_iff (a -ₛ b = 0) (Natural.le_subtraction a b).symm
 
 instance (a b : Natural) : Decidable (a < b) := by
   rw [Natural.less_than.def]
   infer_instance
 
-theorem not_successor_le_zero (n: Natural) : ¬(n.successor) <= 0 := by
+theorem Natural.not_successor_le_zero (n: Natural) : ¬(n.successor) <= 0 := by
   intro h1
   exact successor.neq.zero n (Natural.less_than.equal.zero n.successor h1)
 
-theorem Natural.eq_or_lt_of_le : {n m: Natural} → LE.le n m → Or (Eq n m) (LT.lt n m)
+theorem Natural.eq_or_lt_of_le : {n m: Natural} → n <= m → n = m ∨ n < m
   | zero,   zero,        _ => Or.inl rfl
   | zero,   successor _, _ => Or.inr ((Natural.less_than.equal.successor _ _).mp (greater_than.equal.zero _))
   | successor _, zero,   h => absurd h (not_successor_le_zero _)

@@ -19,23 +19,23 @@ theorem subtract.zero₂ (n: Natural) : 0 -ˢ n = 0 := by cases n <;> rfl
 
 theorem add_sub_add_right (n k m : Natural) : (n + k) -ˢ (m + k) = n -ˢ m := by
   induction k with
-  | zero => rw [Natural.zero_def, Natural.add.zero, Natural.add.zero]
+  | zero => rw [Natural.zero_def, Natural.add_zero, Natural.add_zero]
   | successor k ih => rwa [add.successor, add.successor, subtract.succ.succ]
 
 theorem add_sub_add_left (k n m : Natural) : (k + n) -ˢ (k + m) = n -ˢ m := by
-  rw [Natural.add.commutative k n, Natural.add.commutative k m, add_sub_add_right]
+  rw [Natural.add_commutative k n, Natural.add_commutative k m, add_sub_add_right]
 
 theorem add_sub_cancel_left (n m : Natural) : (n + m) -ˢ n = m :=
-  suffices (n + m) -ˢ (n + 0) = m by rw [Natural.add.zero] at this; assumption;
+  suffices (n + m) -ˢ (n + 0) = m by rw [Natural.add_zero] at this; assumption;
   by rw [add_sub_add_left n m 0, subtract.zero]
 
 theorem eq_zero (a b: Natural) : a -ˢ b = 0 → ∃n: Natural, a + n = b := by
   intro h1
   induction b generalizing a with
-  | zero => rw [Natural.zero_def, subtract.zero] at h1; rw [h1]; exact ⟨0, Natural.add.zero 0⟩
+  | zero => rw [Natural.zero_def, subtract.zero] at h1; rw [h1]; exact ⟨0, Natural.add_zero 0⟩
   | successor b ih => {
     cases a  with
-    | zero => exact ⟨b.successor, Natural.zero.add _⟩
+    | zero => exact ⟨b.successor, Natural.zero_add _⟩
     | successor a => {
       rw [subtract.succ.succ] at h1
       have ⟨c, ih3⟩ := (ih a) h1
@@ -45,7 +45,7 @@ theorem eq_zero (a b: Natural) : a -ˢ b = 0 → ∃n: Natural, a + n = b := by
 
 theorem eq_zero₂ (a b: Natural) : (∃n: Natural, a + n = b) → a -ˢ b = 0 := by
   intro ⟨c, h2⟩
-  have x := subtract.zero₂ c ▸ Natural.add.zero a ▸ (add_sub_add_left a 0 c)
+  have x := subtract.zero₂ c ▸ Natural.add_zero a ▸ (add_sub_add_left a 0 c)
   exact h2 ▸ x
 
 theorem eq_zero₃ (a b: Natural) : (∃n: Natural, a + n = b) ↔ a -ˢ b = 0 := ⟨eq_zero₂ a b, eq_zero a b⟩
@@ -73,7 +73,7 @@ theorem sub.symmetric_cancel (a b: Natural) (h1: a -ˢ b = 0) (h2: b -ˢ a = 0):
   | successor b => {
     have ⟨n, h3⟩ := eq_zero _ _ h1
     rw [←h3, add_sub_cancel_left] at h2
-    rwa [h2, Natural.add.zero] at h3
+    rwa [h2, Natural.add_zero] at h3
   }
 
 -- def x (a b c: Natural) := (a -ˢ b, c -ˢ a, b == c)
@@ -129,7 +129,7 @@ theorem sub₂ (a b c : Natural) (hb : a ≤ b) (hc : c ≤ a) (h : 0 = a -ˢ c 
 --   have ⟨n3, hmm₂⟩ := eq_zero _ _ hr.symm
 
 --   rw [←h1, ←h2, add.right_cancel]
---   rw [←hmm₂, ←Natural.add.associative] at h2
+--   rw [←hmm₂, ←Natural.add_associative] at h2
 --   sorry
   -- have d := (add.right_cancel (n3 + m) c 0).mp h2
 

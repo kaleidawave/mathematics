@@ -2,20 +2,21 @@ import Mathematics.Relation.PartialOrder
 import Mathematics.Structures.Numbers.Natural
 import Mathematics.Structures.Numbers.Natural.Inequality
 
+open Natural in
 instance : PartialOrder Natural LE.le := {
   reflexivity := by
     intro a
     unfold LE.le
     exists 0
-    exact Natural.add.zero a
+    exact add_zero a
   antisymmetric := by
     intro a b
     unfold LE.le
     intro ⟨⟨c1, h1⟩, ⟨c2, h2⟩⟩
-    rw [←h1, add.associative] at h2
-    have h3 : c1 + c2 = 0 := add.left_zero_cancel a (c1 + c2) h2
-    have h4 : c1 = 0 := (add.eq.zero c1 c2 h3).left
-    rw [h4, Natural.add.zero] at h1
+    rw [←h1, add_associative] at h2
+    have h3 : c1 + c2 = 0 := add_left_zero_cancel a (c1 + c2) h2
+    have h4 : c1 = 0 := (add_eq_zero c1 c2 h3).left
+    rw [h4, add_zero] at h1
     exact h1
   transitivity := by
     intro a b c
@@ -23,7 +24,7 @@ instance : PartialOrder Natural LE.le := {
     intro h1
     let ⟨⟨c1, h1⟩, ⟨c2, h2⟩⟩ := h1
     exists (c1 + c2)
-    rw [←h1, add.associative] at h2
+    rw [←h1, add_associative] at h2
     exact h2
 }
 
@@ -48,7 +49,7 @@ theorem not.le.not.equal (a b: Natural) (h1: ¬(a <= b)): a ≠ b := by
 --   | Or.inl h => Or.inl (h ▸ rfl)
 --   | Or.inr ⟨a, h⟩ => Or.inr ⟨a, by rw [successor.add, successor.pure]; exact h⟩
 
-theorem Natural.lt_or_ge (n m : Natural) : Or (LT.lt n m) (GE.ge n m) :=
+theorem Natural.lt_or_ge (n m : Natural) : n < m ∨ m <= n :=
   match m with
   | zero   => Or.inr <| Natural.greater_than.equal.zero n
   | successor m =>
@@ -58,6 +59,17 @@ theorem Natural.lt_or_ge (n m : Natural) : Or (LT.lt n m) (GE.ge n m) :=
       match Natural.eq_or_lt_of_le h with
       | Or.inl h1 => Or.inl (h1 ▸ Natural.less_than.equal.self _)
       | Or.inr h1 => Or.inr h1
+
+theorem Natural.less_than_not_greater_than {a b : Natural}: a < b ↔ ¬(a ≥ b) := by
+  constructor
+  . intro ⟨c, h1⟩ ⟨d, h2⟩
+    rw [←h2, successor.add, ←add.successor, add_associative] at h1
+    have h3 := add_left_zero_cancel _ _ h1
+    rw [add.successor] at h3
+    exact successor.neq.zero _ h3
+  . intro h1
+    have d := Natural.lt_or_ge a b
+    exact Or.resolve_left d.symm h1
 
 theorem Natural.le_total (m n : Natural) : m ≤ n ∨ n ≤ m :=
   match Natural.lt_or_ge m n with

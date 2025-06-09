@@ -70,10 +70,10 @@ theorem subtraction.self (n: Natural) : n -ₛ n = 0 := by
 
 theorem subtraction.successor (n m: Natural) : n.successor -ₛ m.successor = n -ₛ m := rfl
 
-theorem subtraction.lhs.addition (n m: Natural) : (n + m) -ₛ m = n := by
+theorem subtraction_lhs_addition (n m: Natural) : (n + m) -ₛ m = n := by
   induction m with
   | zero => {
-    have d := Natural.zero_def ▸ Natural.add.zero
+    have d := Natural.zero_def ▸ Natural.add_zero
     rw [d]
     exact subtraction.lhs.successor n
   }
@@ -83,32 +83,53 @@ theorem subtraction.lhs.addition (n m: Natural) : (n + m) -ₛ m = n := by
     exact ih
   }
 
-theorem subtraction.lhs.addition' (n m: Natural) : (m + n) -ₛ m = n := by
-  conv => lhs; lhs; rw [add.commutative];
-  exact subtraction.lhs.addition n m
+theorem Natural.subtraction_lhs_addition' (n m: Natural) : (m + n) -ₛ m = n := by
+  conv => lhs; lhs; rw [add_commutative];
+  exact subtraction_lhs_addition n m
 
--- Build cycle
+-- TODO Build cycle
 def lte (a b : Natural) : Prop := ∃c: Natural, a + c = b
 
-theorem subtraction.lhs.addition'' (n m: Natural) (h1: lte m n) : m + (n -ₛ m) = n := by
+theorem Natural.subtraction_lhs_addition'' (n m: Natural) (h1: lte m n) : m + (n -ₛ m) = n := by
   obtain ⟨c, h1⟩ := h1
-  rw [←h1, subtraction.lhs.addition']
+  rw [←h1, subtraction_lhs_addition']
 
-theorem subtraction.lhs.addition''' (n m: Natural) (h1: lte m n) : (n -ₛ m) + m = n := by
+theorem Natural.subtraction_lhs_addition''' (n m: Natural) (h1: lte m n) : (n -ₛ m) + m = n := by
   obtain ⟨c, h1⟩ := h1
-  rw [←h1, add.commutative, subtraction.lhs.addition']
+  rw [←h1, add_commutative, subtraction_lhs_addition']
 
--- def hmm (a b c: Natural) := ((a + b) -ₛ c, a + (b -ₛ c))
--- #eval hmm 1 2 3 -- FALSE, so cannot prove the below
+theorem Natural.subtraction_add (a b c: Natural) (h1: lte c b): a = b -ₛ c ↔ a + c = b := by
+  obtain ⟨n, h1⟩ := h1
+  constructor
+  . intro h2
+    rw [←h1, subtraction_lhs_addition'] at h2
+    rw [h2, add_commutative]
+    exact h1
+  . intro h2
+    rw [←h2]
+    exact subtraction_lhs_addition a c |>.symm
 
--- theorem subtraction.hmm (a b c: Natural) : (a + b) -ₛ c = a + (b -ₛ c) := by
---   induction c with
---   | zero => rw [subtraction.rhs.zero, subtraction.rhs.zero]
---   | successor c ih => {
---     sorry
---   }
-  -- conv => lhs; lhs; rw [add.commutative];
-  -- exact subtraction.lhs.addition n m
+theorem Natural.subtraction.add2 (a b c d: Natural) (h1: lte c b): a = (d + b) -ₛ c ↔ a + c = d + b := by
+  obtain ⟨n, h1⟩ := h1
+  constructor
+  . intro h2
+    rw [←h1, add_commutative c, ←add_associative, subtraction_lhs_addition] at h2
+    rw [h2, add_associative, add_commutative n, h1]
+  . intro h2
+    rw [←h2]
+    exact subtraction_lhs_addition a c |>.symm
+
+theorem Natural.subtraction.add3 (a b c d: Natural) (h1: lte c b): a = d + (b -ₛ c) ↔ a + c = d + b := by
+  obtain ⟨n, h1⟩ := h1
+  constructor
+  . intro h2
+    rw [←h1, add_commutative c, subtraction_lhs_addition] at h2
+    rw [←add_right_cancel _ n _, ←h1, h2]
+    ac_nf
+  . intro h2
+    rw [←h1, add_commutative c, subtraction_lhs_addition]
+    rw [←add_right_cancel _ c _, add_associative, add_commutative n, h1]
+    exact h2
 
 theorem Difference.self (a: Natural): Natural.difference a a = 0 := by
   unfold Natural.difference
@@ -178,7 +199,7 @@ theorem Difference.successor (a b: Natural): Natural.difference a.successor b.su
 theorem Difference.add (a b c: Natural): Natural.difference (a + c) (b + c) = Natural.difference a b := by
   induction c with
   | zero => {
-    rw [Natural.add.zerod, Natural.add.zerod]
+    rw [Natural.add_zerod, Natural.add_zerod]
   }
   | successor c ih => {
     rw [add.successor, add.successor, Difference.successor, ih]
@@ -191,19 +212,19 @@ theorem Difference.mul (a b m: Natural): Natural.difference (m * a) (m * b) = m 
   sorry
   -- induction a with
   -- | zero => {
-  --   rw [multiply.zerod, Difference.zerodr, Difference.zeror]
+  --   rw [Natural.multiply_zerod, Difference.zerodr, Difference.zeror]
   -- }
   -- | successor a ih => {
   --   cases b with
   --   | zero => {
-  --     rw [multiply.zerod, Difference.zero, Difference.zerod]
+  --     rw [Natural.multiply_zerod, Difference.zero, Difference.zerod]
   --   }
   --   | successor b => {
   --     rw [Difference.successor]
   --   }
   --   -- induction a with
   --   -- | zero => {
-  --   --   rw [multiply.zerod, Difference.zerodr, Difference.zeror]
+  --   --   rw [Natural.multiply_zerod, Difference.zerodr, Difference.zeror]
   --   -- }
   --   -- rw [multiply.successor]
   -- }
