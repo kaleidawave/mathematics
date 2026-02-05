@@ -16,10 +16,10 @@ theorem NotEven (n: Natural) (h1: ¬IsEven n): IsOdd n := by
       obtain ⟨m, h2⟩ := h2
       exists m.successor
       rw [successor.multiply, h2]
-      have asdhajsd : 2 = (Natural.zero.successor.successor) := rfl
-      rw [asdhajsd, add.successor, add.successor, Natural.add.zerod]
+      have : 2 = (Natural.zero.successor.successor) := rfl
+      rw [this, add.successor, add.successor, Natural.add_zerod]
     }
-    exact False.elim <| h1 <| add.one n ▸ ih h2
+    exact False.elim <| h1 <| Natural.add_one n ▸ ih h2
 
 theorem two_def : 2 = (Natural.zero.successor.successor) := rfl
 
@@ -67,7 +67,7 @@ theorem Parity (n: Natural): IsEven n ∨ IsOdd n := by
 theorem EvenMul (a b: Natural) (h1: IsEven a): IsEven (a * b) := by
   obtain ⟨c, h1⟩ := h1
   exists (b * c)
-  rw [multiply.associative, h1, multiply.commutative]
+  rw [Natural.multiply_associative, h1, Natural.multiply_commutative]
 
 theorem OddMul (a b: Natural) (h1: IsOdd a) (h2: IsOdd b): IsOdd (a * b) := by
   obtain ⟨c, h1⟩ := h1
