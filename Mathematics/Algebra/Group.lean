@@ -25,8 +25,8 @@ theorem multiply.associative: ∀ a b c: T, a * (b * c) = (a * b) * c := Group.a
 theorem inv.double : (a⁻¹)⁻¹ = a := by
   rw [←multiply.one (a⁻¹)⁻¹, ←(Group.inverse a).left, Group.associativity, (Group.inverse _).left, one.multiply]
 
-theorem one.inverse : (1⁻¹) = (1: T) := by
-  rw [←multiply.one 1⁻¹, (Group.inverse 1).1]
+theorem one.inverse : (1⁻¹: T) = (1: T) := by
+  rw [←multiply.one (1⁻¹: T), (Group.inverse 1).1]
 
 theorem multiply.eq_one_implies_eq (h : a * b = 1) : a⁻¹ = b := by
   rw [←multiply.one a⁻¹, ←h, Group.associativity, (Group.inverse a).left, one.multiply]

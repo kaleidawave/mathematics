@@ -37,12 +37,3 @@ def Set.includes (z: Set A) (a: A) : Prop := z a
 
 @[simp, reducible]
 instance { A: Type }: Membership A (Set A) := ⟨fun z a => z a⟩
-
--- syntax (name := emptyset) "s{}" : term
--- syntax (name := set) "s{" term,+ "}" : term
-
--- macro_rules (kind := emptyset) | `(s{}) => `(Set.empty)
-
--- macro_rules (kind := set)
---   | `(s{ $x }) => `(Set.singleton $x)
---   | `(s{ $x, $xs,* }) => `(operators.Set.union (Set.singleton $x) (s{ $[$xs: term],* }))

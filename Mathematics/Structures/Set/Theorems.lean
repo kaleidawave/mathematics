@@ -19,6 +19,15 @@ theorem singleton.includes (a b: A) : b ∈ Set.singleton a ↔ a = b := by
   intro h1
   exact h1 ▸ singleton.includes.self b
 
+theorem singleton.eq (a b: A) : Set.singleton a = Set.singleton b ↔ a = b := by
+  constructor
+  intro h1
+  rw [Set.extensionality] at h1
+  exact (h1 a).mp (rfl)
+  intro h2
+  ext c
+  rw [h2]
+
 theorem empty.no_members' (a: A): a ∈ Set.empty A → False := by intro h1; contradiction
 
 theorem empty.no_members : ¬(∃a, a ∈ Set.empty A) := fun ⟨a, p⟩ => empty.no_members' a p

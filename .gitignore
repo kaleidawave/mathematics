@@ -4,4 +4,4 @@
 .lake
 TODO.md
 .vscode
-**/*/private_*.lean
+**/private_*.lean

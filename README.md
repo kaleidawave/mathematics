@@ -11,4 +11,3 @@ Mathematics
 ### About
 
 Proofs can definitely be shorter and clearer. (feel free to PR)
-
